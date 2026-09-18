@@ -58,6 +58,14 @@ compile_commands.json
 *.bak
 *.swp
 
+# Visual Studio
+.vs/
+x64/
+Debug/
+Release/
+*.user
+*.suo
+
 # vcpkg
 vcpkg_installed/
 
