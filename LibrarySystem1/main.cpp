@@ -1,6 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "Book.h"
 #include <iostream>
+#include "Book.h"
+#include "Student.h"
+#include "Teacher.h"
 
 int main() {
     Book book(
@@ -9,6 +11,15 @@ int main() {
         "刘畅",
         "高等教育出版社"
     );
+
+    Student student("S001", "StudentA", "Computer", 5);
+    Teacher teacher("T001", "TeacherA", "Computer", 10);
+
+    std::cout << student.getRole() << ": "
+        << student.getName() << std::endl;
+
+    std::cout << teacher.getRole() << ": "
+        << teacher.getName() << std::endl;
 
     std::cout << "书名：" << book.getTitle() << std::endl;
     std::cout << "作者：" << book.getAuthor() << std::endl;
