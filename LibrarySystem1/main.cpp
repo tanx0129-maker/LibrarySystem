@@ -3,6 +3,7 @@
 #include "Book.h"
 #include "Student.h"
 #include "Teacher.h"
+#include "BorrowRecord.h"
 
 int main() {
     Book book(
@@ -14,6 +15,20 @@ int main() {
 
     Student student("S001", "StudentA", "Computer", 5);
     Teacher teacher("T001", "TeacherA", "Computer", 10);
+
+    BorrowRecord record("S001", "978001", "2026-09-20");
+
+    std::cout << "借阅人：" << record.getUserId() << std::endl;
+    std::cout << "图书 ISBN：" << record.getIsbn() << std::endl;
+    std::cout << "是否归还："
+        << (record.isReturned() ? "是" : "否")
+        << std::endl;
+
+    record.markReturned("2026-09-25");
+
+    std::cout << "归还后状态："
+        << (record.isReturned() ? "已归还" : "未归还")
+        << std::endl;
 
     std::cout << student.getRole() << ": "
         << student.getName() << std::endl;

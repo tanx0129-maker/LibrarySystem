@@ -30,6 +30,9 @@
     <ClCompile Include="Teacher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BorrowRecord.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Book.h">
@@ -42,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Teacher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BorrowRecord.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
