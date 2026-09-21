@@ -36,3 +36,15 @@ bool Book::isAvailable() const {
 void Book::setAvailable(bool available) {
     this->available = available;
 }
+
+void Book::setTitle(const std::string& title) {
+    this->title = title;
+}
+
+void Book::setAuthor(const std::string& author) {
+    this->author = author;
+}
+
+void Book::setPublisher(const std::string& publisher) {
+    this->publisher = publisher;
+}

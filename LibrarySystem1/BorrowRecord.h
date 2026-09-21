@@ -22,5 +22,12 @@ public:
     const std::string& getBorrowDate() const;
     const std::string& getReturnDate() const;
 
-    bool isReturned() const;
+    bool isOverdue(const std::string& checkDate,
+        int allowedDays = 30) const;
+
+    double calculateFine(const std::string& checkDate,
+        int allowedDays = 30,
+        double dailyFine = 0.5) const;
+
+    bool isReturned() const; 
 };

@@ -23,4 +23,8 @@ public:
 
     bool isAvailable() const;
     void setAvailable(bool available);
+    void setTitle(const std::string& title);
+    void setAuthor(const std::string& author);
+    void setPublisher(const std::string& publisher);
+
 };

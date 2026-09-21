@@ -60,6 +60,7 @@ compile_commands.json
 
 # Visual Studio
 .vs/
+.vs_stale_*/
 x64/
 Debug/
 Release/

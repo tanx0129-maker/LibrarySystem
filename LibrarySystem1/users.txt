@@ -1,0 +1,1 @@
+Student|S001|StudentA|Computer|5
