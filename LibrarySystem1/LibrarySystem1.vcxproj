@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="Book.cpp" />
     <ClCompile Include="BorrowRecord.cpp" />
+    <ClCompile Include="LibrarySystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Student.cpp" />
     <ClCompile Include="Teacher.cpp" />
@@ -133,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="Book.h" />
     <ClInclude Include="BorrowRecord.h" />
+    <ClInclude Include="LibrarySystem.h" />
     <ClInclude Include="Student.h" />
     <ClInclude Include="Teacher.h" />
     <ClInclude Include="User.h" />
