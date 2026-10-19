@@ -1,1 +1,4 @@
 Student|S001|StudentA|Computer|5
+Student|5020255047|张三|计算机|50
+Student|1022|谭昕|计算机科学与技术学院|50
+Student|S1001|演示学生（已修改）|计算机科学与技术学院|4

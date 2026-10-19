@@ -1,0 +1,4 @@
+Student|S001|StudentA|Computer|5
+Student|5020255047|张三|计算机|50
+Student|1022|谭昕|计算机科学与技术学院|50
+Student|S1001|婕旂ず瀛︾敓锛堝凡淇敼锛墊璁＄畻鏈虹瀛︿笌鎶�鏈闄4

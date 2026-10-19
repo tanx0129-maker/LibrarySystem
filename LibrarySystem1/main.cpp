@@ -1,10 +1,17 @@
 #define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <string>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#include "CollectionUtils.h"
+#include "DigitalResource.h"
 #include "LibrarySystem.h"
+#include "Magazine.h"
 #include "Student.h"
 #include "Teacher.h"
 
@@ -17,12 +24,11 @@ std::string inputLine(const std::string& prompt) {
 
 int inputInt(const std::string& prompt) {
     while (true) {
-        std::string text = inputLine(prompt);
+        const std::string text = inputLine(prompt);
 
         try {
             size_t position = 0;
-            int value = std::stoi(text, &position);
-
+            const int value = std::stoi(text, &position);
             if (position == text.size()) {
                 return value;
             }
@@ -30,57 +36,115 @@ int inputInt(const std::string& prompt) {
         catch (...) {
         }
 
-        std::cout << "ÇëÊäÈëÓĞĞ§Êı×Ö¡£\n";
+        std::cout << "è¯·è¾“å…¥æœ‰æ•ˆæ•´æ•°ã€‚\n";
     }
 }
 
-void listBooks(const LibrarySystem& library) {
-    const auto& books = library.getBooks();
+void listResources(const LibrarySystem& library) {
+    const auto& resources = library.getResources();
 
-    if (books.empty()) {
-        std::cout << "ÔİÎŞÍ¼Êé¡£\n";
+    std::cout << "èµ„æºæ€»æ•°ï¼š" << countItems(resources) << "\n";
+    if (resources.empty()) {
+        std::cout << "å½“å‰æ²¡æœ‰èµ„æºã€‚\n";
         return;
     }
 
-    for (const auto& book : books) {
-        std::cout << book.getIsbn() << " | "
-            << book.getTitle() << " | "
-            << book.getAuthor() << " | "
-            << book.getPublisher() << " | "
-            << (book.isAvailable() ? "¿É½è" : "ÒÑ½è³ö")
-            << '\n';
+    for (const auto& resource : resources) {
+        if (resource != nullptr) {
+            // åŸºç±»æŒ‡é’ˆè°ƒç”¨è™šå‡½æ•°ï¼Œä½“ç°è¿è¡Œæ—¶å¤šæ€ã€‚
+            std::cout << resource->displayInfo() << '\n';
+        }
     }
 }
 
-void saveAll(LibrarySystem& library) {
-    library.saveBooks("books.txt");
-    library.saveUsers("users.txt");
-    library.saveRecords("records.txt");
-    std::cout << "Êı¾İ±£´æÍê³É¡£\n";
+void listUsers(const LibrarySystem& library) {
+    const auto& users = library.getUsers();
+    std::cout << "ç”¨æˆ·æ€»æ•°ï¼š" << countItems(users) << "\n";
+
+    for (const auto& user : users) {
+        if (user != nullptr) {
+            std::cout << user->getRole() << " | "
+                << user->getId() << " | "
+                << user->getName() << " | "
+                << user->getDepartment() << " | æœ€å¤§å€Ÿé˜…ï¼š"
+                << user->getMaxBorrowCount() << '\n';
+        }
+    }
+}
+
+void saveAll(const LibrarySystem& library) {
+    const bool resourcesSaved = library.saveBooks("books.txt");
+    const bool usersSaved = library.saveUsers("users.txt");
+    const bool recordsSaved = library.saveRecords("records.txt");
+
+    if (resourcesSaved && usersSaved && recordsSaved) {
+        std::cout << "èµ„æºã€ç”¨æˆ·å’Œå€Ÿé˜…è®°å½•ä¿å­˜æˆåŠŸã€‚\n";
+    }
+    else {
+        std::cout << "ä¿å­˜å¤±è´¥ï¼Œè¯·æ£€æŸ¥æ–‡ä»¶è·¯å¾„å’Œæƒé™ã€‚\n";
+    }
+}
+
+std::shared_ptr<LibraryResource> createResourceFromInput() {
+    const int type = inputInt("èµ„æºç±»å‹ï¼ˆ1-å›¾ä¹¦ï¼Œ2-æ‚å¿—ï¼Œ3-ç”µå­èµ„æºï¼‰ï¼š");
+    const std::string id = inputLine("èµ„æºç¼–å·/ISBNï¼š");
+    const std::string title = inputLine("æ ‡é¢˜ï¼š");
+    const int quantity = inputInt("èµ„æºæ•°é‡ï¼š");
+
+    if (type == 1) {
+        const std::string author = inputLine("ä½œè€…ï¼š");
+        const std::string publisher = inputLine("å‡ºç‰ˆç¤¾ï¼š");
+        return std::make_shared<Book>(
+            id, title, author, publisher, quantity);
+    }
+
+    if (type == 2) {
+        const std::string editor = inputLine("ç¼–è¾‘ï¼š");
+        const std::string issue = inputLine("æœŸå·ï¼š");
+        return std::make_shared<Magazine>(
+            id, title, editor, issue, quantity);
+    }
+
+    if (type == 3) {
+        const std::string format = inputLine("æ–‡ä»¶æ ¼å¼ï¼š");
+        const std::string url = inputLine("è®¿é—®åœ°å€ï¼š");
+        return std::make_shared<DigitalResource>(
+            id, title, format, url, quantity);
+    }
+
+    std::cout << "èµ„æºç±»å‹ä¸å­˜åœ¨ã€‚\n";
+    return nullptr;
 }
 
 int main() {
-    LibrarySystem library;
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
 
+    LibrarySystem library;
     library.loadBooks("books.txt");
     library.loadUsers("users.txt");
     library.loadRecords("records.txt");
 
     while (true) {
-        std::cout << "\n===== Í¼Êé¹ÜÀíÏµÍ³ =====\n";
-        std::cout << "1. ²é¿´Í¼Êé\n";
-        std::cout << "2. Ìí¼ÓÍ¼Êé\n";
-        std::cout << "3. ²éÑ¯Í¼Êé\n";
-        std::cout << "4. ĞŞ¸ÄÍ¼Êé\n";
-        std::cout << "5. É¾³ıÍ¼Êé\n";
-        std::cout << "6. Ìí¼ÓÓÃ»§\n";
-        std::cout << "7. ½èÊé\n";
-        std::cout << "8. »¹Êé\n";
-        std::cout << "9. ²éÑ¯ÓâÆÚºÍ·£¿î\n";
-        std::cout << "10. ±£´æÊı¾İ\n";
-        std::cout << "0. ±£´æ²¢ÍË³ö\n";
+        std::cout << "\n===== å›¾ä¹¦é¦†å€Ÿé˜…ç®¡ç†ç³»ç»Ÿ =====\n"
+            << "1. æŸ¥çœ‹æ‰€æœ‰èµ„æº\n"
+            << "2. æ·»åŠ èµ„æº\n"
+            << "3. æŸ¥è¯¢èµ„æº\n"
+            << "4. ä¿®æ”¹èµ„æº\n"
+            << "5. åˆ é™¤èµ„æº\n"
+            << "6. æ·»åŠ ç”¨æˆ·\n"
+            << "7. æŸ¥çœ‹ç”¨æˆ·\n"
+            << "8. å€Ÿé˜…èµ„æº\n"
+            << "9. å½’è¿˜èµ„æº\n"
+            << "10. æŸ¥è¯¢é€¾æœŸå’Œç½šæ¬¾\n"
+            << "11. ä¿å­˜æ•°æ®\n"
+            << "12. ä¿®æ”¹èµ„æºæ•°é‡\n"
+            << "13. ä¿®æ”¹ç”¨æˆ·ä¿¡æ¯\n"
+            << "0. ä¿å­˜å¹¶é€€å‡º\n";
 
-        int choice = inputInt("ÇëÑ¡Ôñ²Ù×÷£º");
+        const int choice = inputInt("è¯·é€‰æ‹©æ“ä½œï¼š");
 
         if (choice == 0) {
             saveAll(library);
@@ -89,70 +153,72 @@ int main() {
 
         switch (choice) {
         case 1:
-            listBooks(library);
+            listResources(library);
             break;
 
         case 2: {
-            std::string isbn = inputLine("ISBN£º");
-            std::string title = inputLine("ÊéÃû£º");
-            std::string author = inputLine("×÷Õß£º");
-            std::string publisher = inputLine("³ö°æÉç£º");
-
-            if (library.addBook(Book(isbn, title, author, publisher))) {
-                std::cout << "Ìí¼Ó³É¹¦¡£\n";
-            }
-            else {
-                std::cout << "Ìí¼ÓÊ§°Ü£¬ISBN¿ÉÄÜÒÑ´æÔÚ¡£\n";
-            }
+            auto resource = createResourceFromInput();
+            std::cout << (library.addResource(resource)
+                ? "èµ„æºæ·»åŠ æˆåŠŸã€‚\n"
+                : "èµ„æºæ·»åŠ å¤±è´¥ï¼Œç¼–å·å¯èƒ½å·²å­˜åœ¨ã€‚\n");
             break;
         }
 
         case 3: {
-            std::string isbn = inputLine("ÇëÊäÈëISBN£º");
-            Book* book = library.searchBook(isbn);
-
-            if (book == nullptr) {
-                std::cout << "Î´ÕÒµ½Í¼Êé¡£\n";
-            }
-            else {
-                std::cout << book->getTitle() << " | "
-                    << book->getAuthor() << " | "
-                    << (book->isAvailable() ? "¿É½è" : "ÒÑ½è³ö")
-                    << '\n';
-            }
+            const std::string id = inputLine("è¯·è¾“å…¥èµ„æºç¼–å·/ISBNï¼š");
+            const LibraryResource* resource = library.searchResource(id);
+            std::cout << (resource == nullptr
+                ? "æœªæ‰¾åˆ°èµ„æºã€‚\n"
+                : resource->displayInfo() + "\n");
             break;
         }
 
         case 4: {
-            std::string isbn = inputLine("ISBN£º");
-            std::string title = inputLine("ĞÂÊéÃû£º");
-            std::string author = inputLine("ĞÂ×÷Õß£º");
-            std::string publisher = inputLine("ĞÂ³ö°æÉç£º");
+            const std::string id = inputLine("è¯·è¾“å…¥èµ„æºç¼–å·/ISBNï¼š");
+            LibraryResource* resource = library.searchResource(id);
+            if (resource == nullptr) {
+                std::cout << "æœªæ‰¾åˆ°èµ„æºã€‚\n";
+                break;
+            }
 
-            std::cout << (library.updateBook(
-                isbn, title, author, publisher)
-                ? "ĞŞ¸Ä³É¹¦¡£\n" : "ĞŞ¸ÄÊ§°Ü¡£\n");
+            const std::string title = inputLine("æ–°æ ‡é¢˜ï¼š");
+            std::string creator;
+            std::string detail;
+            if (resource->getType() == "Book") {
+                creator = inputLine("æ–°ä½œè€…ï¼š");
+                detail = inputLine("æ–°å‡ºç‰ˆç¤¾ï¼š");
+            }
+            else if (resource->getType() == "Magazine") {
+                creator = inputLine("æ–°ç¼–è¾‘ï¼š");
+                detail = inputLine("æ–°æœŸå·ï¼š");
+            }
+            else {
+                creator = inputLine("æ–°æ–‡ä»¶æ ¼å¼ï¼š");
+                detail = inputLine("æ–°è®¿é—®åœ°å€ï¼š");
+            }
+
+            std::cout << (library.updateResource(id, title, creator, detail)
+                ? "èµ„æºä¿®æ”¹æˆåŠŸã€‚\n"
+                : "èµ„æºä¿®æ”¹å¤±è´¥ã€‚\n");
             break;
         }
 
         case 5: {
-            std::string isbn = inputLine("ÇëÊäÈëISBN£º");
-
-            std::cout << (library.deleteBook(isbn)
-                ? "É¾³ı³É¹¦¡£\n"
-                : "É¾³ıÊ§°Ü£¬Í¼Êé²»´æÔÚ»òÕıÔÚ½è³ö¡£\n");
+            const std::string id = inputLine("è¯·è¾“å…¥èµ„æºç¼–å·/ISBNï¼š");
+            std::cout << (library.deleteResource(id)
+                ? "èµ„æºåˆ é™¤æˆåŠŸã€‚\n"
+                : "èµ„æºåˆ é™¤å¤±è´¥ï¼Œèµ„æºä¸å­˜åœ¨æˆ–ä»æœ‰å€Ÿé˜…ã€‚\n");
             break;
         }
 
         case 6: {
-            int type = inputInt("1-Ñ§Éú£¬2-½ÌÊ¦£º");
-            std::string id = inputLine("ÓÃ»§±àºÅ£º");
-            std::string name = inputLine("ĞÕÃû£º");
-            std::string department = inputLine("ÔºÏµ£º");
-            int maxBorrowCount = inputInt("×î´ó½èÔÄÊıÁ¿£º");
+            const int type = inputInt("ç”¨æˆ·ç±»å‹ï¼ˆ1-å­¦ç”Ÿï¼Œ2-æ•™å¸ˆï¼‰ï¼š");
+            const std::string id = inputLine("ç”¨æˆ·ç¼–å·ï¼š");
+            const std::string name = inputLine("å§“åï¼š");
+            const std::string department = inputLine("é™¢ç³»ï¼š");
+            const int maxBorrowCount = inputInt("æœ€å¤§å€Ÿé˜…æ•°é‡ï¼š");
 
             std::shared_ptr<User> user;
-
             if (type == 1) {
                 user = std::make_shared<Student>(
                     id, name, department, maxBorrowCount);
@@ -162,59 +228,78 @@ int main() {
                     id, name, department, maxBorrowCount);
             }
             else {
-                std::cout << "ÓÃ»§ÀàĞÍ´íÎó¡£\n";
+                std::cout << "ç”¨æˆ·ç±»å‹ä¸å­˜åœ¨ã€‚\n";
                 break;
             }
 
             std::cout << (library.addUser(user)
-                ? "ÓÃ»§Ìí¼Ó³É¹¦¡£\n"
-                : "ÓÃ»§Ìí¼ÓÊ§°Ü¡£\n");
+                ? "ç”¨æˆ·æ·»åŠ æˆåŠŸã€‚\n"
+                : "ç”¨æˆ·æ·»åŠ å¤±è´¥ï¼Œç¼–å·å¯èƒ½å·²å­˜åœ¨ã€‚\n");
             break;
         }
 
-        case 7: {
-            std::string userId = inputLine("ÓÃ»§±àºÅ£º");
-            std::string isbn = inputLine("ISBN£º");
-            std::string date = inputLine("½èÊéÈÕÆÚ£¨YYYY-MM-DD£©£º");
-
-            std::cout << (library.borrowBook(userId, isbn, date)
-                ? "½èÊé³É¹¦¡£\n" : "½èÊéÊ§°Ü¡£\n");
+        case 7:
+            listUsers(library);
             break;
-        }
 
         case 8: {
-            std::string userId = inputLine("ÓÃ»§±àºÅ£º");
-            std::string isbn = inputLine("ISBN£º");
-            std::string date = inputLine("»¹ÊéÈÕÆÚ£¨YYYY-MM-DD£©£º");
-
-            std::cout << (library.returnBook(userId, isbn, date)
-                ? "»¹Êé³É¹¦¡£\n" : "»¹ÊéÊ§°Ü¡£\n");
+            const std::string userId = inputLine("ç”¨æˆ·ç¼–å·ï¼š");
+            const std::string resourceId = inputLine("èµ„æºç¼–å·/ISBNï¼š");
+            const std::string date = inputLine("å€Ÿé˜…æ—¥æœŸï¼ˆYYYY-MM-DDï¼‰ï¼š");
+            std::cout << (library.borrowBook(userId, resourceId, date)
+                ? "å€Ÿé˜…æˆåŠŸã€‚\n" : "å€Ÿé˜…å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç”¨æˆ·ã€èµ„æºçŠ¶æ€æˆ–å€Ÿé˜…ä¸Šé™ã€‚\n");
             break;
         }
 
         case 9: {
-            std::string userId = inputLine("ÓÃ»§±àºÅ£º");
-            std::string isbn = inputLine("ISBN£º");
-            std::string date = inputLine("²éÑ¯ÈÕÆÚ£¨YYYY-MM-DD£©£º");
-
-            bool overdue =
-                library.isOverdue(userId, isbn, date);
-
-            double fine =
-                library.calculateFine(userId, isbn, date);
-
-            std::cout << "ÊÇ·ñÓâÆÚ£º"
-                << (overdue ? "ÊÇ" : "·ñ") << '\n';
-            std::cout << "·£¿î½ğ¶î£º" << fine << " Ôª\n";
+            const std::string userId = inputLine("ç”¨æˆ·ç¼–å·ï¼š");
+            const std::string resourceId = inputLine("èµ„æºç¼–å·/ISBNï¼š");
+            const std::string date = inputLine("å½’è¿˜æ—¥æœŸï¼ˆYYYY-MM-DDï¼‰ï¼š");
+            std::cout << (library.returnBook(userId, resourceId, date)
+                ? "å½’è¿˜æˆåŠŸã€‚\n" : "å½’è¿˜å¤±è´¥ï¼Œè¯·æ£€æŸ¥å€Ÿé˜…è®°å½•ã€‚\n");
             break;
         }
 
-        case 10:
+        case 10: {
+            const std::string userId = inputLine("ç”¨æˆ·ç¼–å·ï¼š");
+            const std::string resourceId = inputLine("èµ„æºç¼–å·/ISBNï¼š");
+            const std::string date = inputLine("æŸ¥è¯¢æ—¥æœŸï¼ˆYYYY-MM-DDï¼‰ï¼š");
+            const bool overdue = library.isOverdue(
+                userId, resourceId, date);
+            const double fine = library.calculateFine(
+                userId, resourceId, date);
+            std::cout << "æ˜¯å¦é€¾æœŸï¼š" << (overdue ? "æ˜¯" : "å¦") << '\n'
+                << "ç½šæ¬¾é‡‘é¢ï¼š" << fine << " å…ƒ\n";
+            break;
+        }
+
+        case 11:
             saveAll(library);
             break;
 
+        case 12: {
+            const std::string id = inputLine("è¯·è¾“å…¥èµ„æºç¼–å·/ISBNï¼š");
+            const int quantity = inputInt("è¯·è¾“å…¥æ–°çš„èµ„æºæ€»æ•°é‡ï¼š");
+            std::cout << (library.changeResourceQuantity(id, quantity)
+                ? "èµ„æºæ•°é‡ä¿®æ”¹æˆåŠŸã€‚\n"
+                : "èµ„æºæ•°é‡ä¿®æ”¹å¤±è´¥ï¼Œæ•°é‡ä¸èƒ½å°äºå½“å‰å€Ÿå‡ºæ•°é‡ã€‚\n");
+            break;
+        }
+
+        case 13: {
+            const std::string id = inputLine("ç”¨æˆ·ç¼–å·ï¼š");
+            const std::string name = inputLine("æ–°å§“åï¼š");
+            const std::string department = inputLine("æ–°é™¢ç³»ï¼š");
+            const int maxBorrowCount = inputInt("æ–°çš„æœ€å¤§å€Ÿé˜…æ•°é‡ï¼š");
+            std::cout << (library.updateUser(
+                id, name, department, maxBorrowCount)
+                ? "ç”¨æˆ·ä¿¡æ¯ä¿®æ”¹æˆåŠŸã€‚\n"
+                : "ç”¨æˆ·ä¿¡æ¯ä¿®æ”¹å¤±è´¥ã€‚\n");
+            break;
+        }
+
         default:
-            std::cout << "ÎŞĞ§Ñ¡Ïî¡£\n";
+            std::cout << "æ— æ•ˆé€‰é¡¹ã€‚\n";
         }
     }
 

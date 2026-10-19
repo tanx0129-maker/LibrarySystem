@@ -23,4 +23,8 @@ public:
     const std::string& getName() const;
     const std::string& getDepartment() const;
     int getMaxBorrowCount() const;
+
+    void setName(const std::string& name);
+    void setDepartment(const std::string& department);
+    void setMaxBorrowCount(int maxBorrowCount);
 };

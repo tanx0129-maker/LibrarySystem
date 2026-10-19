@@ -33,7 +33,16 @@
     <ClCompile Include="BorrowRecord.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DigitalResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="LibrarySystem.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LibraryResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Magazine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +62,19 @@
     <ClInclude Include="BorrowRecord.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CollectionUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitalResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="LibrarySystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LibraryResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Magazine.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

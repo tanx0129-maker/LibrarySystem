@@ -30,3 +30,17 @@ const std::string& User::getDepartment() const {
 int User::getMaxBorrowCount() const {
     return maxBorrowCount;
 }
+
+void User::setName(const std::string& newName) {
+    name = newName;
+}
+
+void User::setDepartment(const std::string& newDepartment) {
+    department = newDepartment;
+}
+
+void User::setMaxBorrowCount(int newMaxBorrowCount) {
+    if (newMaxBorrowCount > 0) {
+        maxBorrowCount = newMaxBorrowCount;
+    }
+}
